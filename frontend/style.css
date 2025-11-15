@@ -1,32 +1,3 @@
-/* === FONT GLOBAL === */
-@font-face {
-  font-family: "MS Sans Serif";
-  src: url("fonts/ms-sans-serif-1.otf") format("opentype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "MS Sans Serif";
-  src: url("fonts/ms-sans-serif-bold.otf") format("opentype");
-  font-weight: bold;
-  font-style: normal;
-}
-
-body,
-input,
-textarea,
-button,
-.grey-box,
-.window-title,
-.custom-btn,
-#thank,
-.tulisan-karakter .px-4 {
-  font-family: "MS Sans Serif", sans-serif !important;
-  font-size: 13px;
-  letter-spacing: 0;
-}
-
 * {
   margin: 0;
   padding: 0;
@@ -34,7 +5,7 @@ button,
 }
 
 body {
-  background-image: url("bg.png");
+  background-image: url("ewa/bg.png");
   position: relative;
   z-index: 0;
   /* background: linear-gradient(to bottom, #ffffff, #acc8c9); */
@@ -48,99 +19,56 @@ body {
   justify-content: center;
 }
 
-.background-bottom {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  margin-bottom: 0px;
-  width: 100%;
-  height: 760px;
-  background-image: url("bg-potrait.png");
-  background-repeat: no-repeat;
-  background-position: center bottom;
-  background-size: cover;
-  z-index: -1;
-  pointer-events: none;
-}
+/* .background-bottom { */
+/* position: fixed; */
+/* bottom: 0; */
+/* left: 0; */
+/* margin-bottom: 0px; */
+/* width: 100%; */
+/* height: 760px; */
+/* background-image: url("bg-potrait.png"); */
+/* background-repeat: no-repeat; */
+/* background-position: center bottom; */
+/* background-size: cover; */
+/* z-index: -1; */
+/* pointer-events: none; */
+/* } */
 
 .grey-box {
-  background-color: #c0c0c0;
-  background-image: url("form.png"); /* pakai gambar yang sudah ada teks 'Selamat Datang' */
-  background-repeat: no-repeat;
-  background-size: cover; /* biar gambar pas satu bingkai */
-  border: 2px solid #000;
-  box-shadow: 3px 3px #000, inset -2px -2px #808080, inset 2px 2px #fff;
-  width: 340px;
-  height: auto;
-  padding: 60px 24px 30px; /* beri ruang agar isi tidak tumpang tindih dengan bagian atas gambar */
-  margin: 40px auto;
-  position: relative;
-  border-radius: 2px;
-  background-position: top center; /* pastikan judul di atas tidak tertutup */
+  background: rgba(0, 0, 0, 0.45);
+  border: 1.5px solid rgba(255, 255, 255, 0.35);
+  border-radius: 18px;
+  padding: 18px;
+  box-shadow: 0 0 25px rgba(255, 45, 135, 0.25);
+  backdrop-filter: blur(10px);
 }
 
-/* === Hilangkan title bar pseudo === */
-.grey-box::before,
-.grey-box::after {
-  content: none !important;
-}
-
-/* === Judul aplikasi di dalam window === */
-.window-title {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-bottom: 12px;
-  font-size: 15px;
-}
-
-.window-title img {
-  width: 24px;
-  height: 24px;
-}
-
-/* === LABEL DAN INPUT === */
-label {
-  font-family: "MS Sans Serif", sans-serif;
-  font-size: 13px;
-  margin-top: 4px;
-  margin-bottom: 2px;
-  display: block;
-}
-
+/* INPUT BLACK */
 .form-control {
-  background: #fff;
-  border: 2px solid #000;
-  border-top-color: #808080;
-  border-left-color: #808080;
-  border-right-color: #fff;
-  border-bottom-color: #fff;
-  box-shadow: inset 1px 1px #fff, inset -1px -1px #808080;
-  border-radius: 0;
-  font-family: "MS Sans Serif", sans-serif;
-  font-size: 13px;
-}
-
-textarea.form-control {
-  resize: none;
-  height: 90px;
-}
-
-/* === PILIH KARAKTERMU === */
-.tulisan-karakter .px-4 {
-  background: #c0c0c0 !important;
-  border: 2px solid #000 !important;
-  box-shadow: inset -1px -1px #808080, inset 1px 1px #fff;
-  border-radius: 0 !important;
-  color: #000 !important;
-  font-size: 13px !important;
+  background: linear-gradient(180deg, #000, #2b2b2b);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 14px;
+  color: #fff;
+  outline: none;
+  width: 100%;
   text-align: center;
-  padding: 4px 10px;
-  margin-top: 10px;
-  margin-bottom: 8px;
-  width: fit-content;
-  margin-left: auto;
-  margin-right: auto;
+  box-shadow: inset 0 1px 5px rgba(0, 0, 0, 0.6), 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.form-control::placeholder {
+  color: #bdbdbd;
+}
+
+.tulisan-karakter div {
+  font-size: 14px;
+  color: #bfbfbf !important;
+  letter-spacing: 1px;
+  background: none !important;
+  border: none !important;
+  margin: 10px 0 15px 0;
+  text-transform: uppercase;
 }
 
 svg {
@@ -187,25 +115,17 @@ svg {
   /* Jarak konten ke tepi */
 }
 
-/* === TOMBOL MASUK === */
 .custom-btn {
-  background: #c0c0c0;
-  border: 2px solid #000;
-  box-shadow: inset -1px -1px #808080, inset 1px 1px #fff;
-  font-family: "MS Sans Serif", sans-serif;
-  font-size: 13px;
-  color: #000;
-  width: 120px;
-  height: 32px;
-  margin-top: 6px;
-}
-
-.custom-btn:hover {
-  background: #b0b0b0;
-}
-
-.custom-btn:active {
-  box-shadow: inset 1px 1px #000, inset -1px -1px #fff;
+  width: 240px;
+  height: 54px;
+  background: linear-gradient(90deg, #6b00ff, #ff2d8b);
+  border-radius: 50px;
+  border: none;
+  color: #fff;
+  font-size: 17px;
+  font-family: "Orbitron", sans-serif;
+  letter-spacing: 1px;
+  box-shadow: 0 0 22px rgba(255, 45, 139, 0.35);
 }
 
 #hero {
@@ -224,101 +144,8 @@ svg {
 }
 
 #thank {
-  background: #c0c0c0 !important;
-  border: 2px solid #000 !important;
-  box-shadow: 2px 2px #000;
-  border-radius: 0 !important;
-  padding: 20px 16px 16px;
-  width: 260px;
-  position: relative;
-  font-family: "Perfect DOS VGA 437", "MS Sans Serif", sans-serif !important;
-  color: #000 !important;
-  text-align: center;
-}
-
-#thank::before {
-  content: "Backto90’s";
-  position: absolute;
-  top: -22px;
-  left: -2px;
-  background: #000080;
-  color: #fff;
-  font-size: 13px;
-  font-weight: bold;
-  font-family: "MS Sans Serif", sans-serif;
-  padding: 2px 8px;
-  width: calc(100% + 4px);
-  border: 2px solid #000;
-  border-bottom: none;
-  box-shadow: inset 2px 2px #808080, inset -2px -2px #fff;
-}
-
-#thank h1,
-#thank h2 {
-  margin: 0;
-  padding: 4px 0;
-}
-
-#thank h1.card-title {
-  font-size: 16px;
-  font-weight: normal;
-  color: #000;
-}
-
-#thank h2#user-name {
-  font-size: 18px;
-  font-weight: bold;
-  color: #d22; /* merah retro seperti font alert di Win95 */
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-#user-name {
-  color: red;
-  font-weight: bold;
-  text-transform: uppercase;
-}
-
-/* === Karakter di halaman Terimakasih === */
-#char-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 40px; /* ⬅️ tambahkan jarak lebih besar dari sebelumnya */
-}
-
-#char-container img,
-.thank-char {
-  width: 160px !important;
-  height: auto;
-  object-fit: contain;
-  image-rendering: pixelated;
-  margin-top: 30px; /* jarak dari atas layar */
-  margin-bottom: 30px; /* jarak dari kartu ucapan */
-}
-
-/* ============== SUCCESS ALERT STYLE ============== */
-.swal2-popup.no-border-shadow {
-  background: #c0c0c0 !important;
-  border: 2px solid #000 !important;
-  box-shadow: inset -2px -2px #808080, inset 2px 2px #fff !important;
-  border-radius: 0 !important;
-  font-family: "VT323", monospace;
-}
-
-.swal2-popup.no-border-shadow::before {
-  content: "Backto90’s";
-  position: absolute;
-  top: -22px;
-  left: -2px;
-  background: #000080;
-  color: #fff;
-  font-size: 14px;
-  padding: 3px 8px;
-  width: calc(100% + 4px);
-  border: 2px solid #000;
-  border-bottom: none;
-  box-shadow: inset 2px 2px #808080, inset -2px -2px #fff;
+  max-width: 500px;
+  background: linear-gradient(180deg, #ff49b1, #8110ff);
 }
 
 @media (max-width: 768px) {
@@ -375,69 +202,45 @@ svg {
 
 .carousel-container {
   display: flex;
+  padding: 0 35px;
   align-items: center;
   justify-content: center;
-  padding: 0 35px;
 }
 
 .carousel-wrapper {
-  max-width: 250px;
+  max-width: 300px;
   width: 100%;
   position: relative;
 }
 
-.carousel-wrapper .arrow-btn {
-  width: 40px; /* sesuaikan ukuran dengan proporsi panah */
-  height: 40px;
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  cursor: pointer;
-  z-index: 3;
-  image-rendering: pixelated; /* biar tetap gaya retro */
-}
-
-.carousel-wrapper .arrow-btn:first-of-type {
-  left: -50px;
-}
-
-.carousel-wrapper .arrow-btn:last-of-type {
-  right: -50px;
-}
-
-.carousel-wrapper .arrow-btn:active {
-  filter: brightness(80%);
-  transform: translateY(-50%) scale(0.95);
-}
-
 .carousel-wrapper i {
-  background: #c0c0c0;
-  border: 2px solid #000;
-  box-shadow: inset -1px -1px #808080, inset 1px 1px #fff;
-  color: #000;
-  font-size: 1rem;
-  width: 32px;
-  height: 32px;
-  line-height: 28px;
-  text-align: center;
-  border-radius: 0;
-  position: absolute;
   top: 50%;
-  transform: translateY(-50%);
+  height: 50px;
+  width: 50px;
   cursor: pointer;
-  z-index: 3;
+  font-size: 1.25rem;
+  position: absolute;
+  text-align: center;
+  line-height: 50px;
+  background: transparent; /* transparan */
+  border: 2px solid #fff; /* warna pinggir */
+  color: #fff; /* warna ikon panah */
+  border-radius: 50%;
+  transform: translateY(-50%);
+  transition: transform 0.1s linear, background 0.2s;
+  z-index: 2;
 }
 
 .carousel-wrapper i:active {
-  box-shadow: inset 1px 1px #000, inset -1px -1px #fff;
+  transform: translateY(-50%) scale(0.85);
 }
 
 .carousel-wrapper i:first-child {
-  left: -45px;
+  left: -22px;
 }
 
 .carousel-wrapper i:last-child {
-  right: -45px;
+  right: -22px;
 }
 
 .carousel-wrapper .carousel {

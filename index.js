@@ -8,7 +8,7 @@ const app = express();
 const fs = require('fs');
 const badWordsPath = path.join(__dirname, 'data.json');
 
-const PORT = process.env.PORT || 3002;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running in port:${PORT}`);
 });
@@ -206,3 +206,49 @@ app.delete("/entries-all", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+// 🔹 Seeder untuk data dummy BackToSchool90s
+app.get('/seed-random', async (req, res) => {
+  try {
+    const db = admin.database();
+    const ref = db.ref('testguest');
+
+    const names = ['Andi', 'Rina', 'Dewi', 'Bayu', 'Budi', 'Sinta', 'Agus', 'Tono', 'Susi', 'Tina'];
+    const comments = [
+      'Seru banget acaranya!',
+      'Kangen masa sekolah nih 😍',
+      'Nostalgia abis!',
+      'Gokil vibes-nya!',
+      'Pokoknya mantap!',
+      'Lucu banget semua kostumnya!',
+      'Asli kayak balik ke 90an!',
+      'Pengen acara kayak gini lagi!',
+    ];
+
+    const total = parseInt(req.query.total) || 50; // ?total=100 misalnya
+    const batch = [];
+
+    for (let i = 0; i < total; i++) {
+      const name = names[Math.floor(Math.random() * names.length)];
+      const comment = comments[Math.floor(Math.random() * comments.length)];
+      const char = Math.floor(Math.random() * 8) + 1;
+
+      const newData = {
+        name,
+        comment,
+        char,
+        timestamp: Date.now(),
+      };
+
+      batch.push(ref.push(newData));
+    }
+
+    await Promise.all(batch);
+
+    res.json({ success: true, message: `${total} data dummy berhasil ditambahkan!` });
+  } catch (error) {
+    console.error('❌ Error seeding data:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
