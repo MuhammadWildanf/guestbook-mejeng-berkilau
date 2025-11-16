@@ -32,6 +32,32 @@ admin.initializeApp({
 });
 
 
+async function checkFirebaseConnection() {
+  try {
+    const db = admin.database();
+    const testRef = db.ref(".info/connected");
+
+    testRef.on("value", (snap) => {
+      if (snap.val() === true) {
+        console.log("🔥 Firebase Realtime Database: CONNECTED");
+      } else {
+        console.log("❌ Firebase Realtime Database: NOT CONNECTED");
+      }
+    });
+
+    // Tes read permission
+    const versionRef = db.ref("/");
+    await versionRef.once("value");
+
+    console.log("✅ Firebase service account AUTHENTICATED & database READABLE");
+  } catch (err) {
+    console.error("❌ Error connecting to Firebase:", err.message);
+  }
+}
+
+checkFirebaseConnection();
+
+
 
 app.use(express.static(path.join(__dirname, 'frontend')));
 
