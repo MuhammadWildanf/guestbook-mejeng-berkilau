@@ -20,7 +20,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css" />
   <link rel="stylesheet" href="style.css" />
   <link rel="icon" href="favicon.png" type="image/png" />
-  <title>Entertainment Week Africa</title>
+  <title>Detty Dec</title>
 </head>
 
 <body>
@@ -35,14 +35,14 @@
         <form id="identity" action="" method="get">
           <div class="pg1" id="pg1" style="display: block">
             <div class="grey-box mb-3">
-              <h1>DIGITAL GUESTBOOK</h1>
+              <div class="title mb-2">DIGITAL GUESTBOOK</div>
               <div class="form-group mb-3">
-                <input type="text" class="form-control" id="name" aria-describedby="name" placeholder="YOUR NAME"
+                <input type="text" class="form-control" id="name" aria-describedby="name" placeholder="Your Name"
                   maxlength="15">
               </div>
               <div class="form-group mb-3">
                 <textarea class="form-control" name="comment" id="comment" rows="3" maxlength="80"
-                  placeholder="MESSAGE "></textarea>
+                  placeholder="Message"></textarea>
               </div>
             </div>
             <div class="grey-box mb-3">
@@ -68,15 +68,14 @@
               </div>
               <div class="d-flex justify-content-center">
                 <div class="tulisan-karakter">
-                  <div class="text-white"
-                    style="background-color: #1c8263; border-radius: 63px; font-size: 16px; color: #ffff; position: relative; border: 2.5px solid #fff;">
+                  <div class="text-white">
                     Choose Your Character
                   </div>
                 </div>
               </div>
             </div>
             <div class="button d-flex justify-content-center">
-              <button id="next" class="custom-btn">SUBMIT</button>
+              <button id="next" class="custom-btn"><span>SUBMIT</span></button>
             </div>
           </div>
         </form>
@@ -95,7 +94,6 @@
 
       </div>
     </div>
-    <div class="background-bottom"></div>
     <script>
       document.addEventListener("DOMContentLoaded", function () {
         const textarea = document.getElementById("comment");

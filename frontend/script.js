@@ -31,11 +31,12 @@ document.getElementById("next").addEventListener("click", async (e) => {
       border-radius: 18px;
       text-align: center;
       font-family: 'Orbitron', sans-serif;
-      background: linear-gradient(180deg, #ff62b0, #7a20ff);
+      background: #FF444F;
       color: white;
       font-size: 20px;
       font-weight: 700;
       position: relative;
+      margin: 0 auto;
       box-shadow:
         0 0 40px rgba(255, 0, 140, 0.5),
         0 0 80px rgba(120, 0, 255, 0.4),
@@ -49,9 +50,10 @@ document.getElementById("next").addEventListener("click", async (e) => {
     showConfirmButton: false,
     timer: 1600,
     customClass: {
-      popup: "no-border-shadow",
+      popup: "swal-center-popup",
     }
   });
+
 
 
   try {
@@ -66,8 +68,8 @@ document.getElementById("next").addEventListener("click", async (e) => {
 
 async function submit(name, char, comment) {
   try {
-    const response = await fetch("https://entertaiment-week-africa.vercel.app/submit-form", {
-      // const response = await fetch("http://localhost:3000/submit-form", {
+    // const response = await fetch("https://entertaiment-week-africa.vercel.app/submit-form", {
+    const response = await fetch("http://localhost:3000/submit-form", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
