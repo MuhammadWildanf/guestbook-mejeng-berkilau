@@ -68,7 +68,7 @@ document.getElementById("next").addEventListener("click", async (e) => {
 
 async function submit(name, char, comment) {
   try {
-    const response = await fetch("https://detty-dec.vercel.app/submit-form", {
+    const response = await fetch("https://wall-of-hope-mandiriberkilau.vercel.app//submit-form", {
       // const response = await fetch("http://localhost:3000/submit-form", {
       method: "POST",
       headers: {
