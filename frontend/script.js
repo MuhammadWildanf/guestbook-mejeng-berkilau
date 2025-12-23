@@ -31,7 +31,7 @@ document.getElementById("next").addEventListener("click", async (e) => {
       border-radius: 18px;
       text-align: center;
       font-family: 'Orbitron', sans-serif;
-      background: #FF444F;
+      background: #339E7D;
       color: white;
       font-size: 20px;
       font-weight: 700;
