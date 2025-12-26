@@ -49,6 +49,30 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'frontend', 'index.html'));
 });
 
+app.get('/debug-env', async (req, res) => {
+  const envCheck = {
+    FIREBASE_TYPE: !!process.env.FIREBASE_TYPE,
+    FIREBASE_PROJECT_ID: !!process.env.FIREBASE_PROJECT_ID,
+    FIREBASE_PRIVATE_KEY_EXISTS: !!process.env.FIREBASE_PRIVATE_KEY,
+    FIREBASE_PRIVATE_KEY_LENGTH: process.env.FIREBASE_PRIVATE_KEY ? process.env.FIREBASE_PRIVATE_KEY.length : 0,
+    FIREBASE_CLIENT_EMAIL: !!process.env.FIREBASE_CLIENT_EMAIL,
+    FIREBASE_DATABASE_URL: process.env.FIREBASE_DATABASE_URL,
+    FIREBASE_APPS_INIT: admin.apps.length
+  };
+
+  let dbStatus = "Not checked";
+  try {
+    if (admin.apps.length) {
+      // Just check if we can get a ref, don't necessarily wait for value if it hangs
+      dbStatus = "Initialized";
+    } else {
+      dbStatus = "Not Initialized";
+    }
+  } catch (e) { dbStatus = e.message }
+
+  res.json({ env: envCheck, dbStatus });
+});
+
 // SUBMIT FORM
 app.post('/submit-form', async (req, res) => {
   try {
