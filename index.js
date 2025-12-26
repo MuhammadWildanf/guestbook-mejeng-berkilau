@@ -5,9 +5,6 @@ const admin = require('firebase-admin');
 const bodyParser = require('body-parser');
 const path = require('path');
 const app = express();
-const fs = require('fs');
-const badWordsPath = path.join(__dirname, 'data.json');
-
 const PORT = process.env.PORT || 3002;
 app.listen(PORT, () => {
   console.log(`Server running in port:${PORT}`);
@@ -76,7 +73,7 @@ app.post('/submit-form', async (req, res) => {
     const db = admin.database()
     const { name, char, comment } = req.body;
     const timestamp = admin.database.ServerValue.TIMESTAMP;
-    const ref = db.ref('testguest');
+    const ref = db.ref('guestbook');
     const newRef = await ref.push({ name, char, comment, timestamp })
     const newKey = newRef.key
     res.status(200).json({ key: newKey, name, char });
@@ -90,7 +87,7 @@ app.post('/update-form', async (req, res) => {
   try {
     const db = admin.database()
     const { key, name, char, comment } = req.body;
-    const ref = db.ref(`/testguest/${key}`);
+    const ref = db.ref(`/guestbook/${key}`);
     const timestamp = admin.database.ServerValue.TIMESTAMP;
     await ref.update({ name, char, comment, timestamp });
     res.status(200).json({ msg: "Data Updated Successfully" });
@@ -99,20 +96,6 @@ app.post('/update-form', async (req, res) => {
     res.status(500).send('Error updating data');
   }
 });
-
-app.get('/manage-badwords', (req, res) => {
-  res.sendFile(path.join(__dirname, 'frontend', 'badwords.html'));
-});
-
-app.get('/badwords', (req, res) => {
-  try {
-    const data = fs.readFileSync(badWordsPath, 'utf-8');
-    res.json(JSON.parse(data));
-  } catch (err) {
-    res.status(500).json({ error: 'Gagal membaca data kata terlarang' });
-  }
-});
-
 
 app.get("/dashboard", (req, res) => {
   res.sendFile(path.join(__dirname, "frontend", "dashboard.html"));
@@ -123,7 +106,7 @@ app.get("/dashboard", (req, res) => {
 app.get("/entries", async (req, res) => {
   try {
     const db = admin.database();
-    const ref = db.ref("testguest");
+    const ref = db.ref("guestbook");
     const snapshot = await ref.once("value");
     res.json(snapshot.val());
   } catch (error) {
@@ -135,7 +118,7 @@ app.get("/entries", async (req, res) => {
 app.get("/entries/:key", async (req, res) => {
   try {
     const db = admin.database();
-    const ref = db.ref(`testguest/${req.params.key}`);
+    const ref = db.ref(`guestbook/${req.params.key}`);
     const snapshot = await ref.once("value");
     res.json(snapshot.val());
   } catch (error) {
@@ -146,7 +129,7 @@ app.get("/entries/:key", async (req, res) => {
 app.put("/entries/:key", async (req, res) => {
   try {
     const db = admin.database();
-    const ref = db.ref(`testguest/${req.params.key}`);
+    const ref = db.ref(`guestbook/${req.params.key}`);
     await ref.update(req.body);
     res.json({ success: true });
   } catch (error) {
@@ -157,7 +140,7 @@ app.put("/entries/:key", async (req, res) => {
 app.delete("/entries/:key", async (req, res) => {
   try {
     const db = admin.database();
-    const ref = db.ref(`testguest/${req.params.key}`);
+    const ref = db.ref(`guestbook/${req.params.key}`);
     await ref.remove();
     res.json({ success: true });
   } catch (error) {
@@ -168,7 +151,7 @@ app.delete("/entries/:key", async (req, res) => {
 app.delete("/entries-all", async (req, res) => {
   try {
     const db = admin.database();
-    const ref = db.ref("testguest");
+    const ref = db.ref("guestbook");
     await ref.remove();
     res.json({ success: true });
   } catch (error) {
@@ -180,7 +163,7 @@ app.delete("/entries-all", async (req, res) => {
 app.get('/seed-random', async (req, res) => {
   try {
     const db = admin.database();
-    const ref = db.ref('testguest');
+    const ref = db.ref('guestbook');
 
     const names = ['Andi', 'Rina', 'Dewi', 'Bayu', 'Budi', 'Sinta', 'Agus', 'Tono', 'Susi', 'Tina'];
     const comments = [
