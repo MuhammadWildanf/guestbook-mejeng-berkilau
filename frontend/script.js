@@ -57,7 +57,8 @@ btnNext.addEventListener("click", async (e) => {
    SUBMIT API
 ================================ */
 async function submitForm(payload) {
-  const res = await fetch("http://localhost:3002/submit-form", {
+  const res = await fetch("https://guestbook-mejeng-berkilau.vercel.app/submit-form", {
+    // const res = await fetch("http://localhost:3002/submit-form", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
