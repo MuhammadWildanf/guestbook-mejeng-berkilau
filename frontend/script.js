@@ -108,120 +108,184 @@ const carousel = document.querySelector(".carousel");
 const arrowLeft = document.getElementById("left");
 const arrowRight = document.getElementById("right");
 
-let cards = [...carousel.children];
-const cardWidth = cards[0].offsetWidth;
+// Get original cards and dimensions
+const originalCards = [...carousel.querySelectorAll(".card")];
+const totalOriginal = originalCards.length;
+// We must account for the GAP and Padding to be precise!
+const computedStyle = window.getComputedStyle(carousel);
+const gap = parseFloat(computedStyle.gap) || 0;
+const paddingLeft = parseFloat(computedStyle.paddingLeft) || 0;
+const cardWidth = originalCards[0].offsetWidth;
+const stride = cardWidth + gap; // The actual distance from one card start to the next
+
+// Clone for infinite scroll (clone all to be safe and smooth)
+originalCards.forEach(card => {
+  const cloneStart = card.cloneNode(true);
+  const cloneEnd = card.cloneNode(true);
+  cloneStart.classList.add('clone');
+  cloneEnd.classList.add('clone');
+});
+
+// We need enough buffer. simpler approach: duplicate the whole set at start and end.
+originalCards.forEach(card => carousel.insertAdjacentHTML("afterbegin", card.outerHTML));
+originalCards.forEach(card => carousel.insertAdjacentHTML("beforeend", card.outerHTML));
+
+// New card list (clones + originals)
+const allCards = carousel.querySelectorAll(".card");
+
+// Rebuild safely to ensure order is [Set][Set (Real)][Set]
+carousel.innerHTML = "";
+originalCards.forEach(card => carousel.appendChild(card.cloneNode(true))); // Set 1 (Buffer Left)
+originalCards.forEach(card => {
+  const el = card.cloneNode(true);
+  el.classList.add('original-ref'); // Mark real ones
+  carousel.appendChild(el);
+}); // Set 2 (Real Middle)
+originalCards.forEach(card => carousel.appendChild(card.cloneNode(true))); // Set 3 (Buffer Right)
+
+// Update selector
+let cards = carousel.querySelectorAll(".card");
+
+// Set start position: The start of the Middle Set (index * stride)
+// We align it such that the first real card is properly placed.
+// The scroll position for index 0 of the middle set is: totalOriginal * stride
+const startScrollPos = totalOriginal * stride;
+carousel.scrollLeft = startScrollPos;
+
 let isDragging = false;
-let startX = 0;
-let startScrollLeft = 0;
+let startX, startScrollLeft;
+let timeoutId;
 
-/* ---- Infinite Clone ---- */
-const cardPerView = Math.round(carousel.offsetWidth / cardWidth);
-
-cards.slice(-cardPerView).reverse().forEach(card => {
-  carousel.insertAdjacentHTML("afterbegin", card.outerHTML);
-});
-cards.slice(0, cardPerView).forEach(card => {
-  carousel.insertAdjacentHTML("beforeend", card.outerHTML);
-});
-
-carousel.scrollLeft = carousel.offsetWidth;
-
-/* ---- Active by Center (drag/scroll) ---- */
-function setActiveFromCenter(source) {
-  const allCards = carousel.querySelectorAll(".card");
-  const centerX =
-    carousel.getBoundingClientRect().left + carousel.offsetWidth / 2;
-
-  let closest = null;
-  let minDist = Infinity;
-
-  allCards.forEach(card => {
-    const rect = card.getBoundingClientRect();
-    const dist = Math.abs(centerX - (rect.left + rect.width / 2));
-    if (dist < minDist) {
-      minDist = dist;
-      closest = card;
-    }
-  });
-
-  if (!closest) return;
-
-  allCards.forEach(c => c.classList.remove("active"));
-  closest.classList.add("active");
-
-  currentChar = Number(closest.dataset.char);
-  console.log(`🎯 ACTIVE (${source}) → char:`, currentChar);
-}
-
-/* ---- Infinite Scroll Fix ---- */
-function infiniteScroll() {
+/* ---- Scroll Handler (Infinite Loop + Active State) ---- */
+const infiniteScroll = () => {
+  // If at the very start (left buffer end), jump to middle
   if (carousel.scrollLeft <= 0) {
-    carousel.scrollLeft = carousel.scrollWidth - 2 * carousel.offsetWidth;
-  } else if (
-    Math.ceil(carousel.scrollLeft) >=
-    carousel.scrollWidth - carousel.offsetWidth
-  ) {
-    carousel.scrollLeft = carousel.offsetWidth;
+    carousel.classList.add("no-transition");
+    carousel.scrollLeft = carousel.scrollLeft + (totalOriginal * stride);
+    carousel.classList.remove("no-transition");
+  }
+  // If at the very end (right buffer start), jump to middle
+  else if (carousel.scrollLeft >= (carousel.scrollWidth - carousel.offsetWidth)) {
+    carousel.classList.add("no-transition");
+    carousel.scrollLeft = carousel.scrollLeft - (totalOriginal * stride);
+    carousel.classList.remove("no-transition");
+  }
+
+  // Calculate Active Character
+  // Center of the view = scrollLeft + (viewWidth/2)
+  // We want to know which card's center is closest to this.
+  // Card center relative to start = (index * stride) + (cardWidth/2) + paddingLeft
+  // It's easier to just map scrollLeft to an index since we have equal strides.
+
+  // Adjusted Scroll = scrollLeft basically tracks the left edge of the content.
+  // The first card starts at `paddingLeft`.
+  // So: roundedIndex = (scrollLeft) / stride. 
+  // But wait, the snap alignment centers the card.
+
+  const centerPos = carousel.scrollLeft + (carousel.offsetWidth / 2);
+  // We offset by paddingLeft to find "distance into the card track"
+  const trackPos = centerPos - paddingLeft;
+  // Each card occupies 'stride' space, centered at stride/2? No.
+  // Card N starts at N * stride. Center is N * stride + cardWidth/2.
+
+  const activeIndex = Math.floor(trackPos / stride);
+
+  const rawIndex = activeIndex % totalOriginal;
+  let newChar = rawIndex + 1;
+
+  // Bounds check (rare edge cases with buffers)
+  if (newChar < 1) newChar = 1;
+  if (newChar > 5) newChar = 1;
+
+  // Update Global State
+  // We ALWAYS update visual state to ensure restarts don't lose highlight
+  if (true) {
+    if (currentChar !== newChar) {
+      currentChar = newChar;
+      console.log(`✅ SELECTED CHARACTER: ${currentChar}`);
+    }
+
+    // Visual Update: Highlight ALL Match Clones
+    // This prevents flickering when the scroll position resets (jumps) 
+    // because the 'target' clone at the new position will ALREADY be active.
+    cards.forEach(c => {
+      c.classList.remove("active");
+      if (parseInt(c.dataset.char) === currentChar) {
+        c.classList.add("active");
+      }
+    });
   }
 }
 
-/* ---- Arrow Control (STATE BASED) ---- */
-function moveByArrow(direction) {
-  const total = 5;
-  currentChar += direction;
-  if (currentChar > total) currentChar = 1;
-  if (currentChar < 1) currentChar = total;
 
-  const target = [...carousel.querySelectorAll(".card")]
-    .find(c => Number(c.dataset.char) === currentChar);
+carousel.addEventListener("scroll", infiniteScroll);
 
-  if (!target) return;
+/* ---- Arrows ---- */
+arrowLeft.addEventListener("click", () => {
+  carousel.scrollBy({ left: -stride, behavior: "smooth" });
+});
 
-  const carouselRect = carousel.getBoundingClientRect();
-  const targetRect = target.getBoundingClientRect();
-
-  const offset =
-    targetRect.left -
-    carouselRect.left -
-    carousel.offsetWidth / 2 +
-    target.offsetWidth / 2;
-
-  carousel.scrollBy({ left: offset, behavior: "smooth" });
-
-  carousel.querySelectorAll(".card").forEach(c => c.classList.remove("active"));
-  target.classList.add("active");
-
-  console.log("➡️ ARROW → char:", currentChar);
-}
-
-arrowLeft.addEventListener("click", () => moveByArrow(-1));
-arrowRight.addEventListener("click", () => moveByArrow(1));
+arrowRight.addEventListener("click", () => {
+  carousel.scrollBy({ left: stride, behavior: "smooth" });
+});
 
 /* ---- Drag ---- */
-carousel.addEventListener("mousedown", e => {
+carousel.addEventListener("mousedown", (e) => {
   isDragging = true;
+  carousel.classList.add("dragging");
   startX = e.pageX;
   startScrollLeft = carousel.scrollLeft;
-  carousel.classList.add("dragging");
 });
 
 document.addEventListener("mouseup", () => {
-  if (!isDragging) return;
   isDragging = false;
   carousel.classList.remove("dragging");
-  setActiveFromCenter("drag");
+  snapToNearest();
 });
 
-carousel.addEventListener("mousemove", e => {
+carousel.addEventListener("mousemove", (e) => {
   if (!isDragging) return;
-  carousel.scrollLeft = startScrollLeft - (e.pageX - startX);
+  e.preventDefault();
+  const x = e.pageX;
+  const walk = (x - startX);
+  carousel.scrollLeft = startScrollLeft - walk;
 });
 
-/* ---- Scroll ---- */
-carousel.addEventListener("scroll", () => {
-  infiniteScroll();
-  if (!isDragging) setActiveFromCenter("scroll");
+// Touch support with Passive: false fix
+carousel.addEventListener("touchstart", (e) => {
+  isDragging = true;
+  carousel.classList.add("dragging");
+  startX = e.touches[0].pageX;
+  startScrollLeft = carousel.scrollLeft;
+}, { passive: false });
+
+document.addEventListener("touchend", () => {
+  isDragging = false;
+  carousel.classList.remove("dragging");
+  snapToNearest();
 });
 
-/* ---- Init ---- */
-setTimeout(() => setActiveFromCenter("init"), 100);
+carousel.addEventListener("touchmove", (e) => {
+  if (!isDragging) return;
+  // We want to prevent default to stop page scrolling while dragging carousel
+  e.preventDefault();
+  const x = e.touches[0].pageX;
+  const walk = (x - startX);
+  carousel.scrollLeft = startScrollLeft - walk;
+}, { passive: false });
+
+
+function snapToNearest() {
+  // Smooth snap to nearest card stride
+  const currentScroll = carousel.scrollLeft;
+  const nearestIndex = Math.round(currentScroll / stride);
+  carousel.scrollTo({
+    left: nearestIndex * stride,
+    behavior: "smooth"
+  });
+}
+
+// Init active state
+// Add 'no-transition' class to css if not exists to support instant jumps
+// For now we just assume clean scroll.
+infiniteScroll();

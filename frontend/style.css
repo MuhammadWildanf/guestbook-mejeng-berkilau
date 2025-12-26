@@ -356,7 +356,7 @@ svg {
 }
 
 .carousel .card {
-  flex: 0 0 100px;
+  flex: 0 0 120px; /* Increased from 100px */
   /* ukuran slot */
   display: flex;
   justify-content: center;
@@ -364,19 +364,22 @@ svg {
 
   scroll-snap-align: center;
 
-  opacity: 0.35;
-  transform: scale(0.8);
-  transition: transform 0.3s ease, opacity 0.3s ease;
+  opacity: 0.5; /* Slightly more visible inactive */
+  transform: scale(0.7); /* Smaller inactive to contrast more */
+  transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.3s ease; /* Snappier bounce */
    background: none !important;
   border: none !important;
   outline: none !important;
   box-shadow: none !important;
+  user-select: none;
+  -webkit-user-select: none;
+  z-index: 1;
 }
 
 .carousel .card.active {
   opacity: 1;
-  transform: scale(1.15);
-  z-index: 5;
+  transform: scale(1.2); /* Much larger active state */
+  z-index: 10;
 }
 
 .carousel .card .img {
@@ -523,4 +526,19 @@ svg {
   font-size: 26px;
   font-weight: 700;
   margin: 10px 0;
+}
+
+/* P2 Centering Fix */
+#p2 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+#char-container {
+  display: flex;
+  justify-content: center;
+  width: 100%;
 }
