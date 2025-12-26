@@ -6,80 +6,75 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3002;
-app.listen(PORT, () => {
-  console.log(`Server running in port:${PORT}`);
-});
 
-
-admin.initializeApp({
-  credential: admin.credential.cert({
-    type: process.env.FIREBASE_TYPE,
-    project_id: process.env.FIREBASE_PROJECT_ID,
-    private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID,
-    private_key: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
-    client_email: process.env.FIREBASE_CLIENT_EMAIL,
-    client_id: process.env.FIREBASE_CLIENT_ID,
-    auth_uri: process.env.FIREBASE_AUTH_URI,
-    token_uri: process.env.FIREBASE_TOKEN_URI,
-    auth_provider_x509_cert_url: process.env.FIREBASE_AUTH_PROVIDER_X509_CERT_URL,
-    client_x509_cert_url: process.env.FIREBASE_CLIENT_X509_CERT_URL,
-    universe_domain: process.env.FIREBASE_UNIVERSE_DOMAIN,
-  }),
-  databaseURL: process.env.FIREBASE_DATABASE_URL
-});
-
-
-async function checkFirebaseConnection() {
+// --- FIREBASE INITIALIZATION ---
+// Check if firebase is already initialized to avoid "Default app already exists" error
+// and allow Vercel to reuse the warm instance.
+if (!admin.apps.length) {
   try {
-    const db = admin.database();
-    const testRef = db.ref(".info/connected");
-
-    testRef.on("value", (snap) => {
-      if (snap.val() === true) {
-        console.log("🔥 Firebase Realtime Database: CONNECTED");
-      } else {
-        console.log("❌ Firebase Realtime Database: NOT CONNECTED");
-      }
+    admin.initializeApp({
+      credential: admin.credential.cert({
+        type: process.env.FIREBASE_TYPE,
+        project_id: process.env.FIREBASE_PROJECT_ID,
+        private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID,
+        // Ensure private key handles newlines correctly
+        private_key: process.env.FIREBASE_PRIVATE_KEY
+          ? process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n')
+          : undefined,
+        client_email: process.env.FIREBASE_CLIENT_EMAIL,
+        client_id: process.env.FIREBASE_CLIENT_ID,
+        auth_uri: process.env.FIREBASE_AUTH_URI,
+        token_uri: process.env.FIREBASE_TOKEN_URI,
+        auth_provider_x509_cert_url: process.env.FIREBASE_AUTH_PROVIDER_X509_CERT_URL,
+        client_x509_cert_url: process.env.FIREBASE_CLIENT_X509_CERT_URL,
+        universe_domain: process.env.FIREBASE_UNIVERSE_DOMAIN,
+      }),
+      databaseURL: process.env.FIREBASE_DATABASE_URL
     });
-
-    // Tes read permission
-    const versionRef = db.ref("/");
-    await versionRef.once("value");
-
-    console.log("✅ Firebase service account AUTHENTICATED & database READABLE");
-  } catch (err) {
-    console.error("❌ Error connecting to Firebase:", err.message);
+    console.log("🔥 Firebase initialized successfully.");
+  } catch (error) {
+    console.error("❌ Firebase initialization failed:", error);
   }
 }
 
-checkFirebaseConnection();
-
-
-
+// --- MIDDLEWARE ---
 app.use(express.static(path.join(__dirname, 'frontend')));
+app.use(express.json());
+app.use(bodyParser.json());
+app.use(cors({ origin: true }));
+
+// --- ROUTES ---
 
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'frontend', 'index.html'));
 });
 
-app.use(express.json())
-
-app.use(bodyParser.json());
-
-app.use(cors({ origin: true }));
-
+// SUBMIT FORM
 app.post('/submit-form', async (req, res) => {
   try {
-    const db = admin.database()
+    if (!admin.apps.length) {
+      throw new Error("Firebase not initialized");
+    }
+    const db = admin.database();
+
+    // Log payload for debugging
+    console.log("📩 Received submission:", req.body);
+
     const { name, char, comment } = req.body;
     const timestamp = admin.database.ServerValue.TIMESTAMP;
     const ref = db.ref('guestbook');
-    const newRef = await ref.push({ name, char, comment, timestamp })
-    const newKey = newRef.key
+
+    // Use timeout for the DB operation so it fails fast if hung
+    const newRef = ref.push();
+    await newRef.set({ name, char, comment, timestamp });
+
+    const newKey = newRef.key;
+    console.log("✅ Data saved with key:", newKey);
+
     res.status(200).json({ key: newKey, name, char });
   } catch (error) {
-    console.error('Error submitting data:', error);
-    res.status(500).send('Error submitting data');
+    console.error('❌ Error submitting data:', error);
+    res.status(500).json({ error: 'Error submitting data', details: error.message });
   }
 });
 
@@ -204,3 +199,13 @@ app.get('/seed-random', async (req, res) => {
   }
 });
 
+// --- SERVER LISTEN / EXPORT ---
+// For local development
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`Server running in port:${PORT}`);
+  });
+}
+
+// For Vercel Serverless Function
+module.exports = app;
