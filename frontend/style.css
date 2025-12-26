@@ -261,6 +261,7 @@ svg {
   right: 10px;
 }
 
+
 .carousel-container {
   display: flex;
   padding: 0 35px;
@@ -272,6 +273,7 @@ svg {
   max-width: 300px;
   width: 100%;
   position: relative;
+  overflow: visible;
 }
 
 .carousel-wrapper i {
@@ -283,9 +285,12 @@ svg {
   position: absolute;
   text-align: center;
   line-height: 50px;
-  background: transparent; /* transparan */
-  border: 2px solid #000; /* warna pinggir */
-  color: #000; /* warna ikon panah */
+  background: transparent;
+  /* transparan */
+  border: 2px solid #000;
+  /* warna pinggir */
+  color: #000;
+  /* warna ikon panah */
   border-radius: 50%;
   transform: translateY(-50%);
   transition: transform 0.1s linear, background 0.2s;
@@ -305,16 +310,25 @@ svg {
 }
 
 .carousel-wrapper .carousel {
-  display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: 100%;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+
   overflow-x: auto;
   scroll-snap-type: x mandatory;
-  gap: 16px;
   scroll-behavior: smooth;
-  scrollbar-width: none;
+
+  padding: 20px 40px;
   margin: 0;
-  padding: 0;
+
+  scrollbar-width: none;
+  overflow-x: auto;
+  overflow-y: visible;
+  /* ⬅️ BIAR SCALE KE ATAS KELUAR */
+}
+
+.carousel::-webkit-scrollbar {
+  display: none;
 }
 
 .carousel::-webkit-scrollbar {
@@ -342,13 +356,66 @@ svg {
 }
 
 .carousel .card {
-  scroll-snap-align: start;
-  list-style: none;
-  cursor: pointer;
-  padding-bottom: 15px;
-  border-radius: 8px;
-  background: none;
-  border: none;
+  flex: 0 0 100px;
+  /* ukuran slot */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  scroll-snap-align: center;
+
+  opacity: 0.35;
+  transform: scale(0.8);
+  transition: transform 0.3s ease, opacity 0.3s ease;
+   background: none !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.carousel .card.active {
+  opacity: 1;
+  transform: scale(1.15);
+  z-index: 5;
+}
+
+.carousel .card .img {
+  padding: 10px;
+  border-radius: 20px;
+  background: transparent;
+}
+
+.carousel img {
+  width: 80px;
+  height: auto;
+  pointer-events: none;
+}
+
+/* .carousel .card.active .img {
+  background: #fff;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.3);
+} */
+
+
+.carousel::before,
+.carousel::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 40px;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.carousel::before {
+  left: 0;
+  background: linear-gradient(to right, #fff 60%, transparent);
+}
+
+.carousel::after {
+  right: 0;
+  background: linear-gradient(to left, #fff 60%, transparent);
 }
 
 .card .img img {
