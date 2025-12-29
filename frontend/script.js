@@ -196,7 +196,7 @@ const infiniteScroll = () => {
 
   // Bounds check (rare edge cases with buffers)
   if (newChar < 1) newChar = 1;
-  if (newChar > 5) newChar = 1;
+  if (newChar > 10) newChar = 1;
 
   // Update Global State
   // We ALWAYS update visual state to ensure restarts don't lose highlight
