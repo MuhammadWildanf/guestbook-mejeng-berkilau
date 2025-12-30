@@ -302,11 +302,11 @@ svg {
 }
 
 .carousel-wrapper i:first-child {
-  left: -22px;
+  left: -50px;
 }
 
 .carousel-wrapper i:last-child {
-  right: -22px;
+  right: -50px;
 }
 
 .carousel-wrapper .carousel {

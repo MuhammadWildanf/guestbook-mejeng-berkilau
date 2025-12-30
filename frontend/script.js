@@ -26,6 +26,127 @@ btnNext.addEventListener("click", async (e) => {
     return;
   }
 
+
+  let badwords = [];
+  try {
+    const res = await fetch("/badwords");
+    badwords = await res.json();
+    console.log("Badwords:", badwords);
+  } catch (error) {
+    console.error("Gagal memuat data.json", error);
+  }
+
+
+  function normalize(text) {
+    return text
+      .toLowerCase()
+      .replace(/(.)\1+/g, "$1$1") // huruf berulang 2x+
+      .replace(/[@4]/g, "a")
+      .replace(/[$5]/g, "s")
+      .replace(/[!1]/g, "i")
+      .replace(/[0]/g, "o")
+      .replace(/[3]/g, "e")
+      .replace(/[7]/g, "t")
+      .replace(/[9]/g, "g")
+      .replace(/[^a-z0-9\s]/g, "") // hapus simbol lain
+      .replace(/\s+/g, " "); // hapus semua spasi
+  }
+
+  const wordsName = normalize(name).split(" ");
+  const wordsComment = normalize(comment).split(" ");
+
+  function stripRepeatedTail(word) {
+    return word
+      .replace(/(.)\1{2,}/g, "$1") // semua spam
+      .replace(/[^a-z]+$/, "");   // hapus sampah belakang
+  }
+
+  const WHITELIST = [
+    "maidi",        // walikota / pemilik acara
+    "madiun",
+  ];
+
+
+  const SENSITIVE_WORDS = [
+    "cina",
+    "tionghoa",
+    "tionsa",
+    "pribumi",
+    "nonpribumi",
+    "ras",
+    "agama",
+    "suku",
+    "etnis"
+  ];
+
+  function isSimilar(word, bad) {
+    word = stripRepeatedTail(word);
+
+    // whitelist global
+    if (WHITELIST.includes(word)) return false;
+
+    // kata sensitif → EXACT ONLY
+    if (SENSITIVE_WORDS.includes(bad)) {
+      return word === bad;
+    }
+
+    // badword pendek → EXACT ONLY
+    if (bad.length <= 4) {
+      return word === bad;
+    }
+
+    // exact
+    if (word === bad) return true;
+
+    // prefix jancokkk
+    if (word.startsWith(bad)) return true;
+
+    // cegah middle-substring (cintai ≠ cina)
+    if (
+      word.includes(bad) &&
+      !word.startsWith(bad) &&
+      !word.endsWith(bad)
+    ) {
+      return false;
+    }
+
+    if (Math.abs(word.length - bad.length) > 2) return false;
+
+    let diffs = [];
+    const len = Math.min(word.length, bad.length);
+
+    for (let i = 0; i < len; i++) {
+      if (word[i] !== bad[i]) diffs.push(i);
+    }
+
+    return diffs.length === 1;
+  }
+
+
+  const foundInName = badwords.some(bad =>
+    wordsName.some(w =>
+      w.length >= 4 &&
+      bad.length >= 4 &&
+      !WHITELIST.includes(w) &&
+      w === bad // ✅ ONLY EXACT
+    )
+  );
+
+
+  // COMMENT → full strict
+  const foundInComment = badwords.some(bad =>
+    wordsComment.some(w => isSimilar(w, bad))
+  );
+
+  if (foundInName || foundInComment) {
+    Swal.fire({
+      icon: "warning",
+      title: "Perhatian",
+      text: "Input Anda mengandung kata yang tidak sesuai kebijakan.",
+    });
+    return;
+  }
+
   console.log("💾 SUBMIT DATA:", { name, char, comment });
 
   try {
@@ -57,8 +178,8 @@ btnNext.addEventListener("click", async (e) => {
    SUBMIT API
 ================================ */
 async function submitForm(payload) {
-  const res = await fetch("https://guestbook-mejeng-berkilau.vercel.app/submit-form", {
-    // const res = await fetch("http://localhost:3002/submit-form", {
+  // const res = await fetch("https://guestbook-mejeng-berkilau.vercel.app/submit-form", {
+  const res = await fetch("http://localhost:3002/submit-form", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
@@ -84,8 +205,8 @@ function showSuccessPopup() {
         font-size:20px;
         font-weight:700;
       ">
-        <div>Thank You</div>
-        <div style="margin-top:8px;">For Your Participation!</div>
+        <div>Terimakasih</div>
+        <div style="margin-top:8px;">Atas Partisipasinya!</div>
       </div>
     `,
     background: "transparent",

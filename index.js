@@ -6,6 +6,8 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3002;
+const badWordsPath = path.join(__dirname, 'data.json');
+const fs = require('fs');
 
 // --- FIREBASE INITIALIZATION ---
 // Check if firebase is already initialized to avoid "Default app already exists" error
@@ -118,6 +120,20 @@ app.post('/update-form', async (req, res) => {
 
 app.get("/dashboard", (req, res) => {
   res.sendFile(path.join(__dirname, "frontend", "dashboard.html"));
+});
+
+
+app.get('/manage-badwords', (req, res) => {
+  res.sendFile(path.join(__dirname, 'frontend', 'badwords.html'));
+});
+
+app.get('/badwords', (req, res) => {
+  try {
+    const data = fs.readFileSync(badWordsPath, 'utf-8');
+    res.json(JSON.parse(data));
+  } catch (err) {
+    res.status(500).json({ error: 'Gagal membaca data kata terlarang' });
+  }
 });
 
 
